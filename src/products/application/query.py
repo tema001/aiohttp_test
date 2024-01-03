@@ -17,3 +17,10 @@ class ProductQuery:
             await self.repo.commit(session)
 
             return res
+
+    async def get_products(self, category_name: str):
+        async with self.db_session() as session:
+            res = await self.repo.get_many_by_category_name(session, category_name)
+            await self.repo.commit(session)
+
+            return [{**x} for x in res]

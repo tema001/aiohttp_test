@@ -44,3 +44,10 @@ class ProductRepository(GenericRepository):
         stmt = delete(Product).where(Product.id == _id)
         res = await session.execute(stmt)
         return res.rowcount
+
+    async def get_many_by_category_name(self, session: AsyncSession, category_name: str):
+        sub_stmt = select(Category.category_id).where(Category.category_name == category_name).scalar_subquery()
+        stmt = select(Product.id, Product.product_name, Product.price).where(Product.category_id == sub_stmt)
+
+        res = await session.execute(stmt)
+        return res.mappings().all()

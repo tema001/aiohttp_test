@@ -1,5 +1,3 @@
-import json
-
 from aiohttp import web
 from aiohttp.web_request import Request
 
@@ -9,8 +7,19 @@ from products.application.commands import ProductCommand
 from products.infra.repository import ProductRepository
 from db import get_session
 
+from shared.utils import json_response
+
 
 router = web.RouteTableDef()
+
+
+@router.get('/category/{category_name}/products')
+async def get_product_by_category(request: Request):
+    query = ProductQuery(ProductRepository(), get_session)
+    product_id = request.match_info['category_name']
+    result = await query.get_products(product_id)
+
+    return json_response(result)
 
 
 @router.get('/product/{product_id}')
@@ -22,8 +31,7 @@ async def get_product(request: Request):
     if not result:
         raise web.HTTPNotFound
 
-    res = json.dumps(result, default=str, allow_nan=False)
-    return web.Response(body=res, content_type='application/json')
+    return json_response(result)
 
 
 @router.put('/product')
